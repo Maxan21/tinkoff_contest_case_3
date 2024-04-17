@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: Payments of legal entities OpenAPI specification
+  version: 0.0.1
+paths:
+  /clients/status:
+    get: 
+      summary: Check full list
+      tags:
+        - Clients
+      operationId: See list
+      responses:  
+        "200":
+          description: List of blocked clients
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/Clients"
+  /clients/status/{client_id}:
+    get:
+      summary: Find out the status by id
+      tags:
+        - Client
+      operationId: GETstatus
+      parameters: 
+        - name: client_id
+          in: path
+          required: true
+          description: client id
+          schema: 
+            type: integer
+            example: 1234567890123
+      responses:  
+        "200":
+          description: Current status of the client
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/Client"
+        
+  /clients/add/block:
+    post:
+      summary: Block client by id
+      tags:
+        - Client
+      requestBody:
+        required: true
+        content:
+          application/json: 
+            schema:
+              $ref: "#/components/schemas/Client"
+      responses:  
+        "201":
+          description: Success
+        "404":
+          description: A client with this id has already been blocked
+        
+  /clients/unBlock/{client_id}:
+    delete:
+      summary: UnBlock client by id
+      tags:
+        - Client
+      parameters: 
+        - name: client_id
+          in: path
+          required: true
+          description: client id
+          schema: 
+            type: integer
+            example: 1234567890123
+      responses:  
+        "200":
+          description: Unblocked
+          content:
+            application/json: {}
+        "404":
+          description: A client with this id is not blocked
+  /clients/block/{client_id}:
+    patch:
+      summary: update status
+      tags:
+        - Client
+      parameters: 
+        - name: client_id
+          in: path
+          required: true
+          description: client id
+          schema: 
+            type: integer
+            example: 1234567890123
+      requestBody:
+        description: Изменение статуса
+        content:
+          application/json: 
+            schema:
+              $ref: "#/components/schemas/Status"
+      responses:
+        "200":
+          description: Статус успешно изменен
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/Client"
+        "404":
+          description: A client with this id is not blocked
+components:
+  schemas:
+    Client:
+      type: object
+      required:
+        - client_id
+        - status
+        - date_block
+      properties: 
+        client_id:
+          type: integer
+          example: 1234567890123
+        status:
+          type: string
+          enum:
+            - Block_fraud
+            - Block_temporary
+        date_block:
+          type: string
+          format: date
+    Clients:
+        type: object
+        required:
+        - client
+        properties: 
+          client: 
+            type: array
+            items:
+              required:
+                - client_id
+                - status
+                - date_block
+              properties: 
+                client_id:
+                  type: integer
+                  example: 1234567890123
+                status:
+                  type: string
+                  enum:
+                    - Block_fraud
+                    - Block_temporary
+                date_block:
+                  type: string
+                  format: date
+    Status:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Block_fraud
+            - Block_temporary
